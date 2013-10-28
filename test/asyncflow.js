@@ -30,14 +30,14 @@ describe("flow", function() {
     });
   });
 
-  // it("wrap a module", function(done) {
-  //   var fs = flow.wrap(require("fs"));
-  //   flow(function() {
-  //     var files = fs.readdir(__dirname).val();
-  //     expect(files).to.have.length.of.at.least(1);
-  //     done();
-  //   });
-  // });
+  it("wrap a module", function(done) {
+    var fs = flow.wrap(require("fs"));
+    flow(function() {
+      var files = fs.readdir(__dirname).val();
+      expect(files).to.have.length.of.at.least(1);
+      done();
+    });
+  });
 
   it("extending function", function(done) {
     Function.prototype.wrap = function() { return flow.wrap(this) };
@@ -49,15 +49,15 @@ describe("flow", function() {
     });
   });
 
-  // it("extending module", function(done) {
-  //   Object.prototype.wrap = function() { return flow.wrap(this) };
-  //   var fs = require("fs").wrap();
-  //   flow(function() {
-  //     var files = fs.readdir(__dirname).val();
-  //     expect(files).to.have.length.of.at.least(1);
-  //     done();
-  //   });
-  // });
+  it("extending module", function(done) {
+    Object.prototype.wrap = function() { return flow.wrap(this) };
+    var fs = require("fs").wrap();
+    flow(function() {
+      var files = fs.readdir(__dirname).val();
+      expect(files).to.have.length.of.at.least(1);
+      done();
+    });
+  });
 
   it("parallel calls", function(done) {
     var readdir = flow.wrap(fs.readdir);
@@ -70,18 +70,105 @@ describe("flow", function() {
     });
   });
 
-  // it("limited parallel calls", function(done) {
-  //   var fs = flow.wrap(require("fs"));
-  //   flow(2, function() {
-  //     var files = fs.readdir(__dirname);
-  //     var files2 = fs.readdir(__dirname + "/..");
-  //     expect(files.val()).to.have.length.of.at.least(1);
-  //     expect(files2.val()).to.have.length.of.at.least(1);
-  //     done();
-  //   });
-  // });
+  it("limited parallel calls", function(done) {
+    var fs = flow.wrap(require("fs"));
+    flow(2, function() {
+      var files = fs.readdir(__dirname);
+      var files2 = fs.readdir(__dirname + "/..");
+      expect(files.val()).to.have.length.of.at.least(1);
+      expect(files2.val()).to.have.length.of.at.least(1);
+      done();
+    });
+  });
 
-  // it("parallel collections", function(done) {
+  it("nested flows", function(done) {
+    var total = 0;
+
+    function count(cb) {
+      setTimeout(function() {
+        total++;
+        cb();
+      }, 50);
+    }
+
+    var c = flow.wrap(count);
+
+    flow(function() {
+      c().val();
+      flow(function() {
+        c().val();
+      });
+      expect(total).to.equal(2);
+      done();
+    });
+  });
+
+  it("nested async flow", function(done) {
+    var total = 0;
+
+    function count(cb) {
+      setTimeout(function() {
+        total++;
+        cb();
+      }, 50);
+    }
+
+    var c = flow.wrap(count);
+
+    flow(function() {
+      c().val();
+      flow(function() {
+        c();
+      });
+      expect(total).to.equal(1);
+      done();
+    });
+  });
+
+  it("parallel forEach", function(done) {
+    var total = 0;
+
+    function count(n, cb) {
+      setTimeout(function() {
+        total++;
+        cb();
+      }, 50);
+    }
+
+    var nums = [1, 2, 3, 4, 5];
+
+    flow(function() {
+      flow.forEach(nums, flow.wrap(function(n, i, a, cb) { count(n, cb) }));
+      expect(total).to.equal(5);
+      done();
+    });
+  });
+
+  it("limited parallel forEach", function(done) {
+    var total = 0;
+
+    function count(n) {
+      var cb = arguments[arguments.length - 1];
+      setTimeout(function() {
+        total++;
+        cb();
+      }, 50);
+    }
+
+    var c = flow.wrap(count);
+    var nums = [1, 2, 3, 4, 5];
+
+    var start = Date.now();
+    flow(function() {
+      flow.forEach(nums, 3, c);
+      var end = Date.now();
+      expect(total).to.equal(5);
+      expect(end - start).to.be.above(100);
+      done();
+    });
+  });
+
+  // it("parallel map", function(done) {
   //   function incNumber(n, cb) {
   //     setTimeout(function() {
   //       cb(n + 1);
