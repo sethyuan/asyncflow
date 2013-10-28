@@ -8,7 +8,7 @@ describe("flow", function() {
   it("wrap a function", function(done) {
     var readdir = flow.wrap(fs.readdir);
     flow(function() {
-      var files = readdir(__dirname).val();
+      var files = readdir(__dirname).wait();
       expect(files).to.have.length.of.at.least(1);
       done();
     });
@@ -18,13 +18,13 @@ describe("flow", function() {
     var readdir = flow.wrap(fs.readdir);
     function foo(cb) {
       flow(function() {
-        var files = readdir(__dirname).val();
+        var files = readdir(__dirname).wait();
         cb(null, files);
       });
     }
     var fooo = flow.wrap(foo);
     flow(function() {
-      var files = fooo().val();
+      var files = fooo().wait();
       expect(files).to.have.length.of.at.least(1);
       done();
     });
@@ -33,7 +33,7 @@ describe("flow", function() {
   it("wrap a module", function(done) {
     var fs = flow.wrap(require("fs"));
     flow(function() {
-      var files = fs.readdir(__dirname).val();
+      var files = fs.readdir(__dirname).wait();
       expect(files).to.have.length.of.at.least(1);
       done();
     });
@@ -43,7 +43,7 @@ describe("flow", function() {
     Function.prototype.wrap = function() { return flow.wrap(this) };
     var readdir = fs.readdir.wrap();
     flow(function() {
-      var files = readdir(__dirname).val();
+      var files = readdir(__dirname).wait();
       expect(files).to.have.length.of.at.least(1);
       done();
     });
@@ -53,7 +53,7 @@ describe("flow", function() {
     Object.prototype.wrap = function() { return flow.wrap(this) };
     var fs = require("fs").wrap();
     flow(function() {
-      var files = fs.readdir(__dirname).val();
+      var files = fs.readdir(__dirname).wait();
       expect(files).to.have.length.of.at.least(1);
       done();
     });
@@ -64,8 +64,8 @@ describe("flow", function() {
     flow(function() {
       var files = readdir(__dirname);
       var files2 = readdir(__dirname + "/..");
-      expect(files.val()).to.have.length.of.at.least(1);
-      expect(files2.val()).to.have.length.of.at.least(1);
+      expect(files.wait()).to.have.length.of.at.least(1);
+      expect(files2.wait()).to.have.length.of.at.least(1);
       done();
     });
   });
@@ -75,8 +75,8 @@ describe("flow", function() {
     flow(2, function() {
       var files = fs.readdir(__dirname);
       var files2 = fs.readdir(__dirname + "/..");
-      expect(files.val()).to.have.length.of.at.least(1);
-      expect(files2.val()).to.have.length.of.at.least(1);
+      expect(files.wait()).to.have.length.of.at.least(1);
+      expect(files2.wait()).to.have.length.of.at.least(1);
       done();
     });
   });
@@ -94,9 +94,9 @@ describe("flow", function() {
     var c = flow.wrap(count);
 
     flow(function() {
-      c().val();
+      c().wait();
       flow(function() {
-        c().val();
+        c().wait();
       });
       expect(total).to.equal(2);
       done();
@@ -116,7 +116,7 @@ describe("flow", function() {
     var c = flow.wrap(count);
 
     flow(function() {
-      c().val();
+      c().wait();
       flow(function() {
         c();
       });
