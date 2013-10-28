@@ -1,0 +1,41 @@
+{
+  "name": "asyncflow",
+  "version": "0.1.0",
+  "description": "An non-intrusive, capable and easy to use async flow library.",
+  "main": "./lib/asyncflow.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sethyuan/asyncflow.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sethyuan/asyncflow/issues",
+    "email": "cavingdeep@gmail.com"
+  },
+  "keywords": [
+    "async",
+    "flow",
+    "concurrency",
+    "limit",
+    "parallel",
+    "waterfall",
+    "series"
+  ],
+  "author": {
+    "name": "sethyuan",
+    "email": "cavingdeep@gmail.com"
+  },
+  "engines": {
+    "node": ">=0.10"
+  },
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "devDependencies": {
+    "chai": "latest"
+  },
+  "dependencies": {
+    "fibers": ">=1.0.1"
+  }
+}
