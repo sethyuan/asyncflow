@@ -155,7 +155,7 @@ describe("flow", function() {
   });
 
   it("extending function", function(done) {
-    Function.prototype.wrap = function() { return flow.wrap(this) };
+    Function.prototype.wrap = flow.extension.wrap;
     var readdir = fs.readdir.wrap();
     flow(function() {
       var files = readdir(__dirname).wait();
@@ -165,7 +165,7 @@ describe("flow", function() {
   });
 
   it("extending module", function(done) {
-    Object.prototype.wrap = function() { return flow.wrap(this) };
+    Object.prototype.wrap = flow.extension.wrap;
     var fs = require("fs").wrap();
     flow(function() {
       var files = fs.readdir(__dirname).wait();
@@ -277,11 +277,7 @@ describe("flow", function() {
   });
 
   it("extending collections", function(done) {
-    Array.prototype.pmap = function() {
-      var args = Array.prototype.slice.call(arguments);
-      args.unshift(this);
-      return flow.wrapped.map.apply(undefined, args)
-    };
+    Array.prototype.pmap = flow.extension.collection("map");
 
     function incNumber(n) {
       var cb = arguments[arguments.length - 1];
