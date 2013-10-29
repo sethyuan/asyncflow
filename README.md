@@ -1,6 +1,16 @@
 # asyncflow
 
-An non-intrusive, capable and easy to use async flow library.
+## 1 Phrase Description
+
+asyncflow is an expressive, capable and easy to use async flow library based on [node-fibers](https://github.com/laverdet/node-fibers).
+
+## Features
+
+* Write asynchronous code in synchronous maner
+* Wrap existing async functions to call them in synchronous style
+* Exceptions are supported and thrown in typical JavaScript fashion
+* Concurrency limit is easily expressed
+* Parallel calls and parallel collection functions are also supported
 
 ## Installation
 
@@ -8,9 +18,43 @@ An non-intrusive, capable and easy to use async flow library.
 $ npm install asyncflow
 ```
 
-## Example
+## Quick Examples
 
-## API
+Say NO to callback hell.
+
+```js
+var flow = require("asyncflow");
+
+var query = flow.wrap(db.query);
+var writeBack = flow.wrap(db.writeBack);
+
+flow(function() {
+  var data = query("...").wait();
+  if (data.length > 1) {
+    // These two writeBacks will run in parallel.
+    var ok1 = writeBack("...", data[0]);
+    var ok2 = writeBack("...", data[1]);
+    if (ok1.wait() && ok2.wait()) {
+      console.log("Successful write back");
+    }
+  } else {
+    data = query("xxx").wait();
+    writeBack("...", data).wait();
+  }
+});
+```
+
+The above example code demonstrates some of the magic of **asyncflow**. The wrapped functions `query` and `writeBack` runs in a synchronous maner within _flow_. Behind the scenes however, none of the code above blocks the Node.js event loop for waiting at any moment.
+
+Now, imagine writing this logic using nested callbacks...
+
+## Documentation
+
+Read the [Guide](https://github.com/sethyuan/asyncflow/wiki/Guide) to understand how to use **asyncflow**.
+
+Read the [API](https://github.com/sethyuan/asyncflow/wiki/API) to know what's available.
+
+Read the [FAQ](https://github.com/sethyuan/asyncflow/wiki/FAQ) to troubleshoot.
 
 ## License
 
