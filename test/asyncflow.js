@@ -74,6 +74,33 @@ describe("flow", function() {
     });
   });
 
+  it("deeper call throw exception", function(done) {
+    function map(arr, limit, f, cb) {
+      flow(limit, function() {
+        try {
+          var results = arr.map(f).map(function(r) { throw new Error("custom") });
+          cb(null, results);
+        } catch (e) {
+          cb(e);
+        }
+      });
+    }
+
+    function increment(n, i, a, cb) {
+      setTimeout(function() {
+        cb(null, n * 2);
+      }, 10);
+    }
+
+    var pmap = flow.wrap(map);
+    var inc = flow.wrap(increment);
+
+    flow(function() {
+      expect(pmap([1, 2, 3], Infinity, inc).wait).to.throw(Error);
+      done();
+    });
+  });
+
   it("nested flows", function(done) {
     var total = 0;
 
@@ -91,7 +118,7 @@ describe("flow", function() {
       flow(function() {
         c().wait();
       });
-      expect(total).to.equal(2);
+      expect(total).to.equal(1);
       done();
     });
   });
@@ -182,7 +209,7 @@ describe("flow", function() {
     var nums = [1, 2, 3, 4, 5];
 
     flow(function() {
-      flow.forEach(nums, flow.wrap(function(n, i, a, cb) { count(n, cb) }));
+      flow.wrapped.forEach(nums, flow.wrap(function(n, i, a, cb) { count(n, cb) })).wait();
       expect(total).to.equal(5);
       done();
     });
@@ -204,7 +231,7 @@ describe("flow", function() {
 
     var start = Date.now();
     flow(function() {
-      flow.forEach(nums, 3, c);
+      flow.wrapped.forEach(nums, 3, c).wait();
       var end = Date.now();
       expect(total).to.equal(5);
       expect(end - start).to.be.above(100);
@@ -224,9 +251,27 @@ describe("flow", function() {
     var nums = [1, 2, 3, 4, 5];
 
     flow(function() {
-      var incnums = flow.map(nums, incnum);
+      var incnums = flow.wrapped.map(nums, incnum).wait();
       expect(incnums).to.have.length(nums.length);
       expect(incnums[0]).to.be.a("number");
+      done();
+    });
+  });
+
+  it("parallel non-wrapped map", function(done) {
+    function incNumber(n) {
+      var cb = arguments[arguments.length - 1];
+      setTimeout(function() {
+        cb(n + 1);
+      }, 10);
+    }
+
+    var incnum = flow.wrap(incNumber);
+    var nums = [1, 2, 3, 4, 5];
+
+    flow.map(nums, incnum, function(err, result) {
+      expect(result).to.have.length(nums.length);
+      expect(result[0]).to.be.a("number");
       done();
     });
   });
@@ -235,7 +280,7 @@ describe("flow", function() {
     Array.prototype.pmap = function() {
       var args = Array.prototype.slice.call(arguments);
       args.unshift(this);
-      return flow.map.apply(undefined, args)
+      return flow.wrapped.map.apply(undefined, args)
     };
 
     function incNumber(n) {
@@ -249,7 +294,7 @@ describe("flow", function() {
     var nums = [1, 2, 3, 4, 5];
 
     flow(function() {
-      var incnums = nums.pmap(incnum);
+      var incnums = nums.pmap(incnum).wait();
       expect(incnums).to.have.length(nums.length);
       expect(incnums[0]).to.be.a("number");
       done();
