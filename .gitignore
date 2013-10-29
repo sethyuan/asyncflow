@@ -2,6 +2,7 @@
 *.swp
 node_modules
 yuidoc.json
+benchmarks
 
 lib-cov
 *.seed
