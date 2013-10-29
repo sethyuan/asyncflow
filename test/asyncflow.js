@@ -14,6 +14,50 @@ describe("flow", function() {
     });
   });
 
+  it("no yield", function(done) {
+    var readdir = flow.wrap(fs.readdir);
+    function foo(cb) {
+      process.nextTick(function() {
+        cb(null, []);
+      });
+    }
+    var fooo = flow.wrap(foo);
+    flow(function() {
+      var files = fooo().wait();
+      expect(files).to.have.length.of.at.least(0);
+      done();
+    });
+  });
+
+  it("error passed to callback", function(done) {
+    function errorFunction(cb) {
+      setTimeout(function() {
+        cb(new Error("custom error"));
+      }, 10);
+    }
+
+    var fun = flow.wrap(errorFunction);
+    flow(function() {
+      expect(fun().wait).to.throw(Error);
+      done();
+    });
+  });
+
+  it("error thrown in function", function(done) {
+    function errorFunction(cb) {
+      setTimeout(function() {
+        cb(null);
+      }, 10);
+      throw new Error("custom error");
+    }
+
+    var fun = flow.wrap(errorFunction);
+    flow(function() {
+      expect(fun).to.throw(Error);
+      done();
+    });
+  });
+
   it("deeper calls", function(done) {
     var readdir = flow.wrap(fs.readdir);
     function foo(cb) {
@@ -26,6 +70,50 @@ describe("flow", function() {
     flow(function() {
       var files = fooo().wait();
       expect(files).to.have.length.of.at.least(1);
+      done();
+    });
+  });
+
+  it("nested flows", function(done) {
+    var total = 0;
+
+    function count(cb) {
+      setTimeout(function() {
+        total++;
+        cb();
+      }, 50);
+    }
+
+    var c = flow.wrap(count);
+
+    flow(function() {
+      c().wait();
+      flow(function() {
+        c().wait();
+      });
+      expect(total).to.equal(2);
+      done();
+    });
+  });
+
+  it("nested flows - no yield", function(done) {
+    var total = 0;
+
+    function count(cb) {
+      setTimeout(function() {
+        total++;
+        cb();
+      }, 50);
+    }
+
+    var c = flow.wrap(count);
+
+    flow(function() {
+      c().wait();
+      flow(function() {
+        c();
+      });
+      expect(total).to.equal(1);
       done();
     });
   });
@@ -77,50 +165,6 @@ describe("flow", function() {
       var files2 = fs.readdir(__dirname + "/..");
       expect(files.wait()).to.have.length.of.at.least(1);
       expect(files2.wait()).to.have.length.of.at.least(1);
-      done();
-    });
-  });
-
-  it("nested flows", function(done) {
-    var total = 0;
-
-    function count(cb) {
-      setTimeout(function() {
-        total++;
-        cb();
-      }, 50);
-    }
-
-    var c = flow.wrap(count);
-
-    flow(function() {
-      c().wait();
-      flow(function() {
-        c().wait();
-      });
-      expect(total).to.equal(2);
-      done();
-    });
-  });
-
-  it("nested async flow", function(done) {
-    var total = 0;
-
-    function count(cb) {
-      setTimeout(function() {
-        total++;
-        cb();
-      }, 50);
-    }
-
-    var c = flow.wrap(count);
-
-    flow(function() {
-      c().wait();
-      flow(function() {
-        c();
-      });
-      expect(total).to.equal(1);
       done();
     });
   });
