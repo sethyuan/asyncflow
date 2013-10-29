@@ -212,59 +212,47 @@ describe("flow", function() {
     });
   });
 
-  // it("parallel map", function(done) {
-  //   function incNumber(n, cb) {
-  //     setTimeout(function() {
-  //       cb(n + 1);
-  //     }, 100);
-  //   }
+  it("parallel map", function(done) {
+    function incNumber(n) {
+      var cb = arguments[arguments.length - 1];
+      setTimeout(function() {
+        cb(n + 1);
+      }, 10);
+    }
 
-  //   var incnum = flow.wrap(incNumber);
-  //   var nums = [1, 2, 3, 4, 5];
+    var incnum = flow.wrap(incNumber);
+    var nums = [1, 2, 3, 4, 5];
 
-  //   flow(function() {
-  //     var incnums = flow.map(nums, incnum);
-  //     expect(incnums).to.have.length(nums.length);
-  //     expect(incnums[0]).to.be.a("number");
-  //     done();
-  //   });
-  // });
+    flow(function() {
+      var incnums = flow.map(nums, incnum);
+      expect(incnums).to.have.length(nums.length);
+      expect(incnums[0]).to.be.a("number");
+      done();
+    });
+  });
 
-  // it("extending collections", function(done) {
-  //   Array.prototype.pmap = function() { return flow.map(this) };
+  it("extending collections", function(done) {
+    Array.prototype.pmap = function() {
+      var args = Array.prototype.slice.call(arguments);
+      args.unshift(this);
+      return flow.map.apply(undefined, args)
+    };
 
-  //   function incNumber(n, cb) {
-  //     setTimeout(function() {
-  //       cb(n + 1);
-  //     }, 100);
-  //   }
+    function incNumber(n) {
+      var cb = arguments[arguments.length - 1];
+      setTimeout(function() {
+        cb(n + 1);
+      }, 10);
+    }
 
-  //   var incnum = flow.wrap(incNumber);
-  //   var nums = [1, 2, 3, 4, 5];
+    var incnum = flow.wrap(incNumber);
+    var nums = [1, 2, 3, 4, 5];
 
-  //   flow(function() {
-  //     var incnums = nums.pmap(incnum);
-  //     expect(incnums).to.have.length(nums.length);
-  //     expect(incnums[0]).to.be.a("number");
-  //     done();
-  //   });
-  // });
-
-  // it("limited parallel collections", function(done) {
-  //   function incNumber(n, cb) {
-  //     setTimeout(function() {
-  //       cb(n + 1);
-  //     }, 100);
-  //   }
-
-  //   var incnum = flow.wrap(incNumber);
-  //   var nums = [1, 2, 3, 4, 5];
-
-  //   flow(function() {
-  //     var incnums = flow.map(nums, 2, incnum);
-  //     expect(incnums).to.have.length(nums.length);
-  //     expect(incnums[0]).to.be.a("number");
-  //     done();
-  //   });
-  // });
+    flow(function() {
+      var incnums = nums.pmap(incnum);
+      expect(incnums).to.have.length(nums.length);
+      expect(incnums[0]).to.be.a("number");
+      done();
+    });
+  });
 });
