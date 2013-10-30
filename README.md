@@ -6,7 +6,7 @@ asyncflow is an expressive, capable and easy to use async flow library based on 
 
 ## Features
 
-* Write asynchronous code in synchronous maner
+* Write asynchronous code in synchronous style
 * Wrap existing async functions to call them in synchronous style
 * Exceptions are supported and thrown in typical JavaScript fashion
 * Concurrency limit is easily expressed
@@ -18,7 +18,7 @@ asyncflow is an expressive, capable and easy to use async flow library based on 
 $ npm install asyncflow
 ```
 
-## Quick Examples
+## Quick Example
 
 Say NO to callback hell.
 
@@ -44,17 +44,17 @@ flow(function() {
 });
 ```
 
-The above example code demonstrates some of the magic of **asyncflow**. The wrapped functions `query` and `writeBack` runs in a synchronous maner within _flow_. Behind the scenes however, none of the code above blocks the Node.js event loop for waiting at any moment.
+The above example code demonstrates some of the magic of **asyncflow**. The wrapped functions `query` and `writeBack` runs in a synchronous maner within the _flow block_. Behind the scenes however, none of the code above blocks the Node.js event loop for waiting at any moment.
 
 Now, imagine writing this logic using nested callbacks...
 
 ## Documentation
 
-Read the [Guide](https://github.com/sethyuan/asyncflow/wiki/Guide) to understand how to use **asyncflow**.
+Read the [Tutorial](https://github.com/sethyuan/asyncflow/wiki/Tutorial) to get started and know how to use **asyncflow**.
+
+Read the [Guide](https://github.com/sethyuan/asyncflow/wiki/Guide) to understand the various important concepts.
 
 Read the [API](https://github.com/sethyuan/asyncflow/wiki/API) to know what's available.
-
-Read the [FAQ](https://github.com/sethyuan/asyncflow/wiki/FAQ) to troubleshoot.
 
 ## License
 
