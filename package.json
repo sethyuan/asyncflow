@@ -1,6 +1,6 @@
 {
   "name": "asyncflow",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "asyncflow is an expressive, capable and easy to use async flow library based on node-fibers.",
   "main": "./lib/asyncflow.js",
   "scripts": {
