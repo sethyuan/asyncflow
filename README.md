@@ -1,6 +1,6 @@
 # asyncflow
 
-## 1 Phrase Description
+## One phrase description
 
 asyncflow is an expressive, capable and easy to use async flow library based on [node-fibers](https://github.com/laverdet/node-fibers).
 
