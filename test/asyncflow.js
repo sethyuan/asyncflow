@@ -276,7 +276,7 @@ describe("flow", function() {
     });
   });
 
-  it("parallel map with cwrap", function(done) {
+  it("parallel map with limited wrap", function(done) {
     function dup(n, cb) {
       process.nextTick(function() {
         cb(null, 2 * n);
@@ -284,7 +284,7 @@ describe("flow", function() {
     }
 
     flow(function() {
-      var nums = flow.wrapped.map([1, 2, 3], flow.cwrap(dup)).wait();
+      var nums = flow.wrapped.map([1, 2, 3], flow.wrap(dup, 1)).wait();
       expect(nums).to.have.length(3);
       expect(nums[0]).to.equal(2);
       expect(nums[1]).to.equal(4);
@@ -293,7 +293,7 @@ describe("flow", function() {
     });
   });
 
-  it("parallel map with cwrap with 2 arguments", function(done) {
+  it("parallel map with limited wrap to 2 arguments", function(done) {
     function dup(n, i, cb) {
       process.nextTick(function() {
         cb(null, (i + 1) * n);
@@ -301,7 +301,7 @@ describe("flow", function() {
     }
 
     flow(function() {
-      var nums = flow.wrapped.map([1, 2, 3], flow.cwrap(dup, 2)).wait();
+      var nums = flow.wrapped.map([1, 2, 3], flow.wrap(dup, 2)).wait();
       expect(nums).to.have.length(3);
       expect(nums[0]).to.equal(1);
       expect(nums[1]).to.equal(4);
