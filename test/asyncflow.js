@@ -43,6 +43,20 @@ describe("flow", function() {
     });
   });
 
+  it("error passed to callback along with a result", function(done) {
+    function errorFunction(cb) {
+      setTimeout(function() {
+        cb(new Error("custom error"), "some other result");
+      }, 10);
+    }
+
+    var fun = flow.wrap(errorFunction);
+    flow(function() {
+      expect(fun().wait).to.throw(Error);
+      done();
+    });
+  });
+
   it("error thrown in function", function(done) {
     function errorFunction(cb) {
       setTimeout(function() {
